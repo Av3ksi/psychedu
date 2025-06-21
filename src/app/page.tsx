@@ -1,3 +1,4 @@
+// Ein kleiner Kommentar, um einen neuen Build zu erzwingen
 'use client'; 
 
 import { useEffect, useState } from 'react';
@@ -5,6 +6,7 @@ import { createClient } from '../lib/supabase/client'; // Importiert unsere neue
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
+
 
 export default function Home() {
   const [session, setSession] = useState<Session | null>(null);
