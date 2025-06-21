@@ -1,62 +1,49 @@
-'use client'; // WICHTIG! Diese Zeile muss ganz oben stehen. Sie macht die Seite interaktiv.
+'use client'; 
 
 import { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase'; // Importiert unseren Supabase client
+import { createClient } from '../lib/supabase/client'; // Importiert unsere neue Client-Funktion
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
-import type { Session } from '@supabase/supabase-js';
+import type { Session, SupabaseClient } from '@supabase/supabase-js';
 
 export default function Home() {
-  // In diesem 'State' speichern wir die Informationen zum eingeloggten Nutzer.
   const [session, setSession] = useState<Session | null>(null);
+  // Wir erstellen den Client jetzt direkt in der Komponente
+  const supabase: SupabaseClient = createClient();
 
-  // Dieser `useEffect` Hook läuft einmal, wenn die Seite geladen wird.
-  // Er holt die aktuelle User-Session und lauscht auf zukünftige Änderungen (Login/Logout).
   useEffect(() => {
-    // Holen der aktuellen Session beim Laden der Seite
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
     });
 
-    // Lauschen auf Änderungen des Authentifizierungs-Status
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });
 
-    // Aufräumen des Listeners, wenn die Komponente verlassen wird
     return () => subscription.unsubscribe();
-  }, []);
+  }, [supabase.auth]);
 
-
-  // Die handleLogout Funktion, die den Nutzer ausloggt.
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    setSession(null); // Setzt die Session manuell zurück, um die UI sofort zu aktualisieren
   };
 
-
-  // Die Logik, was angezeigt wird:
-  // WENN KEINE SESSION (niemand eingeloggt), zeige die Login-Box.
   if (!session) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center">
         <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
            <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">Willkommen bei Psychedu</h1>
-           {/* Dies ist die fertige UI-Komponente von Supabase */}
            <Auth
             supabaseClient={supabase}
             appearance={{ theme: ThemeSupa }}
-            providers={['google', 'github']} // Optional: Social Logins hinzufügen
+            providers={['google', 'github']} 
             theme="dark"
            />
         </div>
       </div>
     );
   }
-  
-  // WENN EINE SESSION EXISTIERT (jemand ist eingeloggt), zeige das Dashboard.
   else {
     return (
         <div className="min-h-screen bg-gray-100 flex flex-col justify-center items-center text-center p-4">
