@@ -1,7 +1,6 @@
-
 import { redirect } from 'next/navigation';
-// === HIER IST DIE KORREKTUR: Wir benutzen den relativen Pfad ===
-import { createClient } from '../../lib/supabase/server';
+// === HIER IST DIE FINALE KORREKTUR: Wir benutzen den robusten Pfad-Alias ===
+import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
