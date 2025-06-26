@@ -2,7 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '../../lib/supabase/client'; // Wir nutzen den sicheren client
+// === NEUE IMPORTE für Bild und Link ===
+import Image from 'next/image';
+import Link from 'next/link';
+// ===================================
+import { createClient } from '../../lib/supabase/client';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
 
 // Wir definieren einen "Typ" für unsere Kursdaten.
@@ -23,17 +27,13 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const getSessionAndCourses = async () => {
-      // 1. Session holen
       const { data: { session } } = await supabase.auth.getSession();
-
-      // 2. Wenn keine Session, zurück zur Startseite
       if (!session) {
         router.push('/');
         return;
       }
       setSession(session);
 
-      // 3. Wenn Session da ist, Kurse laden
       const { data: courseData, error } = await supabase
         .from('courses')
         .select('*');
@@ -51,7 +51,6 @@ export default function DashboardPage() {
   }, [supabase, router]);
 
 
-  // Während die Daten laden, zeige eine Lade-Animation
   if (loading) {
     return (
         <div className="min-h-screen bg-gray-50 flex justify-center items-center">
@@ -60,7 +59,6 @@ export default function DashboardPage() {
     );
   }
 
-  // Wenn Daten geladen sind, zeige das Dashboard
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -73,7 +71,16 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {courses.map((course) => (
             <div key={course.id} className="bg-white rounded-lg shadow-lg overflow-hidden transform hover:-translate-y-2 transition-transform duration-300">
-              <img src={course.image_url} alt={`Bild für den Kurs ${course.title}`} className="w-full h-48 object-cover"/>
+              {/* === HIER WURDE <img> durch <Image /> ersetzt === */}
+              <div className="relative w-full h-48">
+                <Image 
+                    src={course.image_url} 
+                    alt={`Bild für den Kurs ${course.title}`} 
+                    layout="fill"
+                    objectFit="cover"
+                />
+              </div>
+              {/* ============================================== */}
               <div className="p-6">
                 <h2 className="text-2xl font-bold text-gray-800 mb-2">{course.title}</h2>
                 <p className="text-gray-600">{course.description}</p>
@@ -83,9 +90,11 @@ export default function DashboardPage() {
         </div>
         
         <div className="text-center mt-12">
-            <a href="/" className="mt-6 inline-block px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700">
+            {/* === HIER WURDE <a> durch <Link> ersetzt === */}
+            <Link href="/" className="mt-6 inline-block px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700">
                 Zurück zur Startseite
-            </a>
+            </Link>
+            {/* ========================================== */}
         </div>
       </div>
     </div>
