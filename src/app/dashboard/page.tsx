@@ -1,15 +1,12 @@
-'use client'; // WICHTIG: Macht dies zu einer Client-Seite
+'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-// === NEUE IMPORTE für Bild und Link ===
 import Image from 'next/image';
 import Link from 'next/link';
-// ===================================
 import { createClient } from '../../lib/supabase/client';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
 
-// Wir definieren einen "Typ" für unsere Kursdaten.
 type Course = {
   id: number;
   title: string;
@@ -27,9 +24,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const getSessionAndCourses = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
 
       if (!session) {
         router.push('/');
@@ -61,12 +56,24 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-50">
+      {/* Navbar */}
+      <nav className="bg-white shadow-md p-4 flex justify-between items-center">
+        <Link href="/" className="text-2xl font-bold text-gray-800 hover:text-gray-600 transition">
+          MeinDashboard
+        </Link>
+        {session && (
+          <div className="text-gray-700 font-medium">
+            {session.user.email}
+          </div>
+        )}
+      </nav>
+
+      {/* Inhalt */}
+      <main className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">Willkommen im Dashboard</h1>
-          <p className="mt-4 text-xl text-gray-600">Deine verfügbaren Kurse:</p>
-          {session && <p className="mt-1 text-sm text-gray-500 font-mono">{session.user.email}</p>}
+          <p className="mt-4 text-xl text-gray-600">Deine verfügbaren Kurse</p>
         </div>
 
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
@@ -83,7 +90,6 @@ export default function DashboardPage() {
                   objectFit="cover"
                 />
               </div>
-
               <div className="p-6">
                 <h2 className="text-2xl font-bold text-gray-800 mb-2">{course.title}</h2>
                 <p className="text-gray-600">{course.description}</p>
@@ -92,22 +98,21 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        <div className="text-center mt-12 space-y-4">
+        <div className="text-center mt-12 space-x-4">
           <Link
             href="/lessons"
-            className="inline-block px-6 py-2 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-700"
+            className="inline-block px-6 py-2 bg-green-500 text-white font-semibold rounded-lg shadow hover:bg-green-600 transition"
           >
             Zu den Lektionen
           </Link>
-
           <Link
             href="/"
-            className="inline-block px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700"
+            className="inline-block px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow hover:bg-blue-600 transition"
           >
             Zurück zur Startseite
           </Link>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
