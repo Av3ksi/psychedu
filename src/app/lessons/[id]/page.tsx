@@ -1,13 +1,13 @@
-'use client';
+'use client'
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/client'; // Adjust the path as needed
+import { createClient } from '@/lib/supabase/client';
 
 type Lesson = {
   id: number;
   title: string;
-  description?: string; // Optional description
+  description?: string;
 };
 
 export default function LessonsPage({ params }: { params: { id: string } }) {
@@ -25,7 +25,7 @@ export default function LessonsPage({ params }: { params: { id: string } }) {
 
       if (error) {
         console.error('Error fetching lessons:', error);
-      } else if (data) {
+      } else {
         setLessons(data);
       }
 
@@ -33,7 +33,7 @@ export default function LessonsPage({ params }: { params: { id: string } }) {
     };
 
     fetchLessons();
-  }, [courseId]);
+  }, [courseId, supabase]); // Or just [courseId]
 
   if (loading) return <p>Lade Lektionen...</p>;
 
