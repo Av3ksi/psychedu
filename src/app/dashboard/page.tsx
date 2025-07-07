@@ -33,7 +33,7 @@ export default function DashboardPage() {
 
       setSession(session);
 
-      const { data: courseData, error } = await supabase.from('courses').select('*');
+      const { data: courseData, error } = await supabase.from('health psychology').select('*');
 
       if (error) {
         console.error('Fehler beim Abrufen der Kurse:', error);
