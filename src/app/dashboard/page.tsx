@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import Link from 'next/link';
+import Link from 'next/link'; // <-- Already imported
 import { createClient } from '../../lib/supabase/client';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
 
@@ -27,7 +27,7 @@ export default function DashboardPage() {
       const { data: { session } } = await supabase.auth.getSession();
 
       if (!session) {
-        router.push('/');
+        router.push('/'); // Redirect to homepage if not logged in
         return;
       }
 
@@ -78,23 +78,26 @@ export default function DashboardPage() {
 
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {courses.map((course) => (
-            <div
+            <Link
               key={course.id}
-              className="bg-white rounded-lg shadow-lg overflow-hidden transform hover:-translate-y-2 transition-transform duration-300"
+              href={`/lessons/${course.id}`} // 🔗 Make the whole card clickable
+              className="block transform hover:-translate-y-2 transition-transform duration-300"
             >
-              <div className="relative w-full h-48">
-                <Image
-                  src={course.image_url}
-                  alt={`Bild für den Kurs ${course.title}`}
-                  layout="fill"
-                  objectFit="cover"
-                />
+              <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div className="relative w-full h-48">
+                  <Image
+                    src={course.image_url}
+                    alt={`Bild für den Kurs ${course.title}`}
+                    layout="fill"
+                    objectFit="cover"
+                  />
+                </div>
+                <div className="p-6">
+                  <h2 className="text-2xl font-bold text-gray-800 mb-2">{course.title}</h2>
+                  <p className="text-gray-600">{course.description}</p>
+                </div>
               </div>
-              <div className="p-6">
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">{course.title}</h2>
-                <p className="text-gray-600">{course.description}</p>
-              </div>
-            </div>
+            </Link>
           ))}
         </div>
 
