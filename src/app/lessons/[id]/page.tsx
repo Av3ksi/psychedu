@@ -11,30 +11,16 @@ type Lesson = {
 }
 
 type PageProps = {
-  params: Promise<{ id: string }>
+  params: { id: string }
 }
 
 export default function LessonsPage({ params }: PageProps) {
-  const [courseId, setCourseId] = useState<number | null>(null)
+  const courseId = parseInt(params.id, 10)
   const [lessons, setLessons] = useState<Lesson[]>([])
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
 
-  // Resolve dynamic route param
   useEffect(() => {
-    const resolveParams = async () => {
-      const resolved = await params
-      const id = parseInt(resolved.id, 10)
-      setCourseId(id)
-    }
-
-    resolveParams()
-  }, [params])
-
-  // Fetch lessons
-  useEffect(() => {
-    if (!courseId) return
-
     const fetchLessons = async () => {
       const { data, error } = await supabase
         .from('lessons')
@@ -42,7 +28,7 @@ export default function LessonsPage({ params }: PageProps) {
         .eq('course_id', courseId)
 
       if (error) {
-        console.error('Error fetching lessons:', error)
+        console.error('Fehler beim Laden der Lektionen:', error)
       } else {
         setLessons(data || [])
       }
@@ -53,16 +39,26 @@ export default function LessonsPage({ params }: PageProps) {
     fetchLessons()
   }, [courseId, supabase])
 
-  if (loading) return <p>Lade Lektionen...</p>
+  if (loading) return <p className="p-8">Lade Lektionen...</p>
 
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-4">Lektionen für Kurs {courseId}</h1>
-      {/* Show lessons here */}
-      <Link href="/dashboard" className="text-blue-500 underline">
+      
+      {lessons.length === 0 && <p>Keine Lektionen gefunden.</p>}
+
+      <ul className="space-y-4">
+        {lessons.map((lesson) => (
+          <li key={lesson.id} className="p-4 bg-white shadow rounded">
+            <h2 className="text-lg font-semibold">{lesson.title}</h2>
+            <p className="text-sm text-gray-600">{lesson.description}</p>
+          </li>
+        ))}
+      </ul>
+
+      <Link href="/dashboard" className="text-blue-500 underline block mt-8">
         ← Zurück zum Dashboard
       </Link>
     </div>
   )
 }
-
