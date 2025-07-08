@@ -1,60 +1,68 @@
 'use client'
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { createClient } from '@/lib/supabase/client';
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
 
 type Lesson = {
-  id: number;
-  title: string;
-  description?: string;
-};
+  id: number
+  title: string
+  description?: string | null
+}
 
-export default function LessonsPage({ params }: { params: { id: string } }) {
-  const courseId = parseInt(params.id, 10);
-  const [lessons, setLessons] = useState<Lesson[]>([]);
-  const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+type PageProps = {
+  params: Promise<{ id: string }>
+}
 
+export default function LessonsPage({ params }: PageProps) {
+  const [courseId, setCourseId] = useState<number | null>(null)
+  const [lessons, setLessons] = useState<Lesson[]>([])
+  const [loading, setLoading] = useState(true)
+  const supabase = createClient()
+
+  // Resolve dynamic route param
   useEffect(() => {
+    const resolveParams = async () => {
+      const resolved = await params
+      const id = parseInt(resolved.id, 10)
+      setCourseId(id)
+    }
+
+    resolveParams()
+  }, [params])
+
+  // Fetch lessons
+  useEffect(() => {
+    if (!courseId) return
+
     const fetchLessons = async () => {
       const { data, error } = await supabase
         .from('lessons')
         .select('*')
-        .eq('course_id', courseId);
+        .eq('course_id', courseId)
 
       if (error) {
-        console.error('Error fetching lessons:', error);
+        console.error('Error fetching lessons:', error)
       } else {
-        setLessons(data);
+        setLessons(data || [])
       }
 
-      setLoading(false);
-    };
+      setLoading(false)
+    }
 
-    fetchLessons();
-  }, [courseId, supabase]); // Or just [courseId]
+    fetchLessons()
+  }, [courseId, supabase])
 
-  if (loading) return <p>Lade Lektionen...</p>;
+  if (loading) return <p>Lade Lektionen...</p>
 
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-4">Lektionen für Kurs {courseId}</h1>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {lessons.map((lesson) => (
-          <div key={lesson.id} className="border p-4 rounded shadow">
-            <h2 className="font-semibold">{lesson.title}</h2>
-            <p className="text-sm text-gray-600">{lesson.description || 'Keine Beschreibung'}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-6">
-        <Link href="/dashboard" className="text-blue-500 underline">
-          ← Zurück zum Dashboard
-        </Link>
-      </div>
+      {/* Show lessons here */}
+      <Link href="/dashboard" className="text-blue-500 underline">
+        ← Zurück zum Dashboard
+      </Link>
     </div>
-  );
+  )
 }
+
